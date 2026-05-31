@@ -1,0 +1,37 @@
+GET https://www.linkedin.com/in/shrestharamesh/
+###
+POST https://ollama.com/api/web_search
+Content-Type: application/json
+Authorization: Bearer 4c98d54041ef47699671ebc6b4e3115d.tb4WEtYn30_6ECcpkNqWuj6R
+
+{
+"query": "president of india",
+"max_results" : 1  
+}
+
+###
+POST http://localhost:5000/chathistory
+Content-Type: application/json
+
+{
+"title": "how is the condition of nepal",
+"UserId": "user123"
+}
+
+###
+POST http://localhost:5000/chathistory/69fc6e13106465ea2c50a393/chatItem
+Content-Type: application/json
+
+{
+"userName": "assistant",
+"Message": "I am here to help you with any questions or information you need. How can I assist you today?"
+}
+###
+GET http://localhost:5000/chathistory
+
+
+###
+GET http://localhost:5000/chathistory/69fb2d0220ae5a7d586114c3/chatItem
+###
+DELETE http://localhost:5000/chathistory/69fc4fd99f72870f141c1c0c
+   

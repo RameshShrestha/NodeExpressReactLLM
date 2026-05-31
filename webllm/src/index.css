@@ -1,0 +1,259 @@
+/* :root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+} */
+
+/* a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+ 
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+.container {
+  max-width: 1000px;
+  min-width: 1000px;
+  height: 90vh;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.Rightcontainer {
+  max-width: 20rem;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+.chat-hover:hover {
+  background-color: #d2cdcd;
+  cursor: pointer;
+}
+.selected{
+  background-color: #d2cdcd;
+}
+h1 {
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input[type="text"] {
+  width: calc(100% - 20px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px 15px;
+
+}
+
+.dynamic-container {
+  width: 100%;
+  /* Fixed width, height is dynamic */
+  /* max-height: 200px; */
+  /* Maximum height the div can reach */
+  height: auto;
+  /* Ensures the div grows with content up to max-height */
+  padding: 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  background: #e2eddb;
+  /* Adds a vertical scrollbar if content overflows the max-height */
+  /* Use overflow: auto; to add scrollbars in both directions if needed */
+}
+
+.mySelect {
+  width: 250px;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  /* Adds rounded corners */
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  appearance: none;
+  /* Removes default system styling for consistency */
+  -webkit-appearance: none;
+  /* For Safari */
+}
+
+/* Style the options within the dropdown */
+.mySelect option {
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 5px;
+}
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    color: #dc3545; /* Red color for delete action */
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    margin : 0px;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+}
+
+/* Style on hover or focus */
+.mySelect:hover {
+  border-color: #888;
+}
+textarea.systemtextarea{
+  width: 100%; /* Makes it responsive to its container width */
+  height: auto; /* Specific height, can use min/max-height as well */
+
+  /* Spacing and Borders */
+  padding: 12px; /* Inner spacing for text */
+  box-sizing: border-box; /* Ensures padding/border is included in width/height */
+  border: 2px solid #ccc; /* Custom border style */
+  border-radius: 4px; /* Rounded corners */
+  background-color: #f8f8f8; /* Light gray background */
+
+  /* Typography */
+  font-size: 16px;
+  color: #333;
+  font-family: sans-serif; /* Optional: Use a specific font */
+
+  /* Behavior */
+  resize: vertical; /* Allows resizing only vertically; use 'none' to disable resizing */
+  overflow: auto; /* Adds scrollbars automatically if content exceeds size */
+}
+
+textarea.custom-textarea {
+  /* Dimensions */
+  width: 100%; /* Makes it responsive to its container width */
+  height: 100px; /* Specific height, can use min/max-height as well */
+
+  /* Spacing and Borders */
+  padding: 12px; /* Inner spacing for text */
+  box-sizing: border-box; /* Ensures padding/border is included in width/height */
+  border: 2px solid #ccc; /* Custom border style */
+  border-radius: 4px; /* Rounded corners */
+  background-color: #f8f8f8; /* Light gray background */
+
+  /* Typography */
+  font-size: 16px;
+  color: #333;
+  font-family: sans-serif; /* Optional: Use a specific font */
+
+  /* Behavior */
+  resize: vertical; /* Allows resizing only vertically; use 'none' to disable resizing */
+  overflow: auto; /* Adds scrollbars automatically if content exceeds size */
+}
+
+/* Pseudo-classes for interactivity */
+textarea.custom-textarea:focus {
+  border-color: #007bff; /* Highlight border when the user clicks/focuses the field */
+  outline: none; /* Removes the default browser outline */
+}
+
+
+.busy-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  overflow: hidden;
+  position: relative;
+  border-radius: 5px;
+}
+
+.busy-bar-fill {
+  width: 30%;
+  height: 100%;
+  background-color: #3b82f6; /* Modern blue */
+  position: absolute;
+  animation: loading-animation 5s infinite ease-in-out;
+  border-radius: 5px;
+}
+
+@keyframes loading-animation {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}
