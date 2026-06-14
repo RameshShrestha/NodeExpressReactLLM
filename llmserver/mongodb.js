@@ -6,9 +6,7 @@ console.log(DB_NAME,process.env.MONGODB_URI);
  let dbConnected = false;
 const connectDB = async () => {
   try {
-    // const connectionInstance = await mongoose.connect(
-    //   `${'mongodb+srv://.m44psuo.mongodb.net'}/${DB_NAME}`
-    // );
+   
 
     const connectionInstance = await mongoose.connect(
       `${'mongodb://ramesh:ramesh@localhost:27017'}/${DB_NAME}?authSource=admin`
