@@ -1,0 +1,26 @@
+
+services:
+  llmserver:
+    build:
+      context: ./llmserver
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      # Enforce the correct values directly here to bypass internal .env cache
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - PORT=5000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always
+
+  webllm:
+    build:
+      context: ./webllm
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - llmserver
+    restart: always

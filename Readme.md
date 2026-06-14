@@ -198,3 +198,6 @@
 
   1. Webllm (React) sends structured JSON requests to Express API Gateway.
   4. Response travels back through the chain: llmserver $\rightarrow$ Express Gateway $\rightarrow$ Webllm.
+
+  ## Commands 
+  docker compose up --build -d

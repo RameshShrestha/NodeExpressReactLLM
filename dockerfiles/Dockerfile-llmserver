@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  webllm:
+    build: ./webllm
+    ports:
+      - "3000:80"
+    depends_on:
+      - llmserver
+
+  llmserver:
+    image: ollama/ollama:latest
+    container_name: ollama_server
+    volumes:
+      - ./models:/data/models
+    ports:
+      - "11480:11480"
+    environment:
+      - OLLAMA_HOST=host
+      - OLLAMA_PORT=11480
+    networks:
+      app_net:
+        ipv4_address: 172.42.0.2
+
+networks:
+  app_net:
+    driver: bridge
+    ip_range: "172.42.0.0/16"

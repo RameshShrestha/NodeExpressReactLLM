@@ -118,7 +118,7 @@ function App() {
 
   return (
     <>
-    <div style={{"display": "flex", "justifyContent": "center",height: "94vh",flexWrap: "wrap"}}>
+    <div style={{"display": "flex", "justifyContent": "center",height: "92vh",flexWrap: "wrap"}}>
       <div className='Rightcontainer'><Rightcontent/></div>
       <div className="container">
         <CenterContent />

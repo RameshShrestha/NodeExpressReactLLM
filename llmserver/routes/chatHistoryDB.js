@@ -2,6 +2,7 @@
 import express from 'express';
 const router = express.Router();
 import { ChatMessageLLM } from '../MongoModels/ChatMessageLLMModel.js';
+import {clearCollection} from '../LLM/embedding.js';
 router.route("/").get(async (req, res) => {
     //let lat = req.query.lat;
     console.log("Fetching all chat messages");
@@ -54,7 +55,7 @@ router.post('/:id/clear', async (req, res) => {
       { $set: { children: [] } }, // Clear the children array
       { new: true, runValidators: true } // Returns updated doc and runs schema checks
     );
-
+    await clearCollection(req.params.id);
     if (!updatedParent) return res.status(404).json({ message: 'Parent not found' });
     res.status(200).json(updatedParent);
   } catch (err) {

@@ -1,0 +1,3 @@
+This docker is not running for local ollama calling from docker, need to fix this --done
+Need to implement upload and RAG
+Need to make read on stream mode as soon as first token arrives

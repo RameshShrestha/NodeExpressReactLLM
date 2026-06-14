@@ -14,11 +14,11 @@ const LocalStorage = function () {
         }
     }
     const setSystemMessage = (systemMessage) => {
-        console.log("Setting system message in local storage", systemMessage);
+        // console.log("Setting system message in local storage", systemMessage);
         localStorage.setItem('systemMessage', systemMessage);
     }
     const getSystemMessage = () => {
-        console.log("Getting system message from local storage");
+       // console.log("Getting system message from local storage");
         return localStorage.getItem('systemMessage');
     }
     return {

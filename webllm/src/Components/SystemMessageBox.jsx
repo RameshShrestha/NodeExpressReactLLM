@@ -91,14 +91,17 @@ export default function SystemMessageBox({ dialogOpenState, handleClose, systemM
                     </Toolbar>
                 </AppBar>
               {/* <div> System Message: {systemMessage} from LL</div> */}
+              {/* <Typography sx={{ ml: 2, flex: 1 ,lineHeight: 1 }} variant="h3" component="div">
+                            Provided System Instructions will be used to set the behavior of the assistant.
+                        </Typography> */}
                 <TextareaAutosize
                     maxRows={20}
                     aria-label="maximum height"
-                    placeholder="Maximum 4 rows"
+                    placeholder="System Message"
                     defaultValue="System Message"
                     value={text}
                     onChange={handleSystemMessageChange}
-                    style={{ width: 'auto', height:'auto', padding:'10px', fontSize:'16px' }}
+                    style={{ width: 'auto', height:'auto', padding:'10px', fontSize:'16px', margin:'20px' ,borderRadius:'8px', borderColor:'#ccc', boxShadow:'0 2px 10px rgba(0, 0, 0, 0.1)' }}
                 />
             </Dialog>
         </React.Fragment>

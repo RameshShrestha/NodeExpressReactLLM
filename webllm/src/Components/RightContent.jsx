@@ -83,16 +83,17 @@ function Rightcontent() {
                     </option>
                 ))}
             </select>
- {/*
+
             <label> Select the voice :
-                <select className='mySelect' id="voiceLanguage" onChange={handleVoiceChange} value={selectedVoice?.name}>
+               
+            </label>
+             <select className='mySelect' id="voiceLanguage" onChange={handleVoiceChange} value={selectedVoice?.name}>
                     {voices && voices.map((option) => (
                         <option key={option.name} value={option.name}>
                             {option.name}
                         </option>
                     ))}
                 </select>
-            </label>
             <label>
                 <input type="checkbox" name="streamResponse" checked={streamResponse} onChange={handleStreamResponseCheckboxChange} />
                 Use Streaming Response
@@ -100,7 +101,7 @@ function Rightcontent() {
              <label>
                 <input type="checkbox" name="autoReadResponse" checked={readResponse} onChange={handleReadResponseChanged} />
                 Read Response automatically
-            </label> */}
+            </label> 
              {/* <label htmlFor="systemPrompt">Instruction:</label> */}
             {/* <textarea id="systemPrompt" className="systemtextarea" style={{ width: '100%' }} name="systemPrompt" 
             onChange={handleSystemMessageChanged} rows="15" cols="50" placeholder="System Prompt" defaultValue={systemMessage}>

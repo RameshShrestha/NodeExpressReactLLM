@@ -44,7 +44,7 @@ const DataProvider = ({ children }) => {
     const [selectedVoice, setSelectedVoice] = useState(null);
     const [streamResponse, setStreamResponse] = useState(false);
       const [readResponse, setReadResponse] = useState(false);
-    const [selectedModel, setSelectedModel] = useState("granite4.1:3b");
+    const [selectedModel, setSelectedModel] = useState("granite4.1:8b");
     const getModels = async () => {
         const response = await fetch('/dataprovider/getModels');
         const models = await response.json();
@@ -59,7 +59,7 @@ const DataProvider = ({ children }) => {
         const response = await fetch('/dataprovider/chathistory');
         const chatList = await response.json();
         setChats(chatList.chats);
-         console.log("chatList", chatList);
+       // console.log("chatList", chatList);
     }
 
     // Load Available Models 

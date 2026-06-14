@@ -1,0 +1,28 @@
+{
+  "name": "nodeexpressreactllm1",
+  "version": "1.0.1",
+  "description": "Mono repo for react and llm server",
+  "homepage": "https://github.com/RameshShrestha/NodeExpressReactLLM#readme",
+  "bugs": {
+    "url": "https://github.com/RameshShrestha/NodeExpressReactLLM/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RameshShrestha/NodeExpressReactLLM.git"
+  },
+  "license": "ISC",
+  "author": "Ramesh Shrestha",
+  "type": "commonjs",
+ 
+  
+    "workspaces": [
+    "llmserver",
+    "webllm"
+  ],
+   "scripts": {
+    "dev:frontend": "npm run dev -w webllm",
+    "dev:backend": "npm run dev -w llmserver",
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  }
+}
