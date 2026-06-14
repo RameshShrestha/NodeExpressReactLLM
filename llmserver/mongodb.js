@@ -7,7 +7,7 @@ console.log(DB_NAME,process.env.MONGODB_URI);
 const connectDB = async () => {
   try {
     // const connectionInstance = await mongoose.connect(
-    //   `${'mongodb+srv://ramesh_01:ramesh123@cluster0.m44psuo.mongodb.net'}/${DB_NAME}`
+    //   `${'mongodb+srv://.m44psuo.mongodb.net'}/${DB_NAME}`
     // );
 
     const connectionInstance = await mongoose.connect(
