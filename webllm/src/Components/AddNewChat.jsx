@@ -7,14 +7,19 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 export default function AddNewChat({ addChatOpenState, handleAddChatDialogClose }) {
-   let defaultSystemMessage  = `Helpful assistant on provided topics, always respond as html5 tags inside div which can be added into webpage.
-   You will respond within 100  words for interaction as general communication. 
-   Content should not be more than 500 words at all.
-    If you have some more information, ask for user if user wanted to know more on that.
-     Do not use tools when internal knowledge is sufficient or already knowledge is provided via tool or user.
-     When you use tools, always use them at the beginning of the response and do not add any other content in that and your answer should be based on tool response not your response do not need to be in html5 tags for tool use response
-      response, wait for tool response and then respond with complete answer using the tool response and internal knowledge.
-     Remember todays date and time is ${new Date()}`;
+   let defaultSystemMessage  = 
+   `Helpful assistant on provided topics,
+
+              Rules
+              1. Always respond as html5 tags inside div which can be added into webpage. This is very critical, you should always make sure on this before final response.
+              2. You will respond within 100  words for interaction as general communication. 
+              3. Content should not be more than 500 words at all.
+              4. If you have some more information, ask for user if user wanted to know more on that.
+              5. Do not use tools when internal knowledge is sufficient or already knowledge is provided via tool or user. 
+                  When you use tools, always use them at the beginning of the response and do not add any other content
+                    in that and your answer should be based on tool response not your response do not need to be in html5 tags for tool use response response, 
+                    wait for tool response and then respond with complete answer using the tool response and internal knowledge.
+         Remember todays date and time is ` + new Date();
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);

@@ -50,7 +50,8 @@ const DataProvider = ({ children }) => {
         const models = await response.json();
         const modelOptions = models.map(m => ({
             value: m.name,
-            text: `${m.name}`
+            text: `${m.name}`,
+            capabilities : m.capabilities
         }));
         setModels(modelOptions);
        // return models;

@@ -5,6 +5,7 @@ import { DataContext } from "../Dataprovider/DataContext";
 import { LocalStorage } from "../Dataprovider/LocalStorage.js";
 import ChatList from './ChatList.jsx';
 import AddNewChat from './AddNewChat.jsx';
+
 const _myLocalStorageUtility = LocalStorage();
 function Rightcontent() {
     const [voices, setVoices] = useState([]);
@@ -71,7 +72,18 @@ function Rightcontent() {
             setSelectedChatId(data.link._id); // Automatically select the newly created chat
          }
     }
-    
+    const getCapabilites = (selectedModel) =>{
+        if(!selectedModel){
+            return "";
+        }
+         let modelDetail = models.filter( model =>  model.text === selectedModel);
+         if(modelDetail.length > 0){
+            let capabilities = modelDetail[0].capabilities;
+             return capabilities.join(',');
+
+         }else return "";
+
+    }
     return (
         <div style={{ background: "white" }}>
             <h1>Ollama Local LLM UI</h1>
@@ -83,6 +95,13 @@ function Rightcontent() {
                     </option>
                 ))}
             </select>
+            <div style={{color: "#ffffff",background: "#35306d",
+                    padding: "5px",borderRadius: "10px",fontSize: "16px",fontWeight: "bold", 
+                    width: "fit-content",margin: "5px 0px"}} > 
+                    {
+                    selectedModel && getCapabilites(selectedModel)
+                    }
+            </div>
 
             <label> Select the voice :
                

@@ -34,4 +34,11 @@ GET http://localhost:5000/chathistory
 GET http://localhost:5000/chathistory/69fb2d0220ae5a7d586114c3/chatItem
 ###
 DELETE http://localhost:5000/chathistory/69fc4fd99f72870f141c1c0c
+
+
+
+###
+
+GET http://localhost:5000/getmodels
+
    

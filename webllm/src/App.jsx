@@ -123,8 +123,9 @@ function App() {
       <div className="container">
         <CenterContent />
       </div>
-      <div></div>
+   
       </div>
+         <div className='myBanner'> By : Ramesh Shrestha   Email : fx_ra@hotmail.com </div>
     </>
   )
 }

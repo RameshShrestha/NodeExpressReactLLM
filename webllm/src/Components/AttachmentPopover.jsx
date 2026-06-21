@@ -10,7 +10,7 @@ import Divider from '@mui/material/Divider';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import LanguageIcon from '@mui/icons-material/Language';
-
+import TextField from '@mui/material/TextField';
 // Dialog components for the desktop webcam interface
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -19,7 +19,7 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function AttachmentPopover({addFile}) {
+export default function AttachmentPopover({addFile,addURL}) {
   const id = React.useId();
   const buttonId = `${id}-button`;
   const menuId = `${id}-menu`;
@@ -33,6 +33,9 @@ export default function AttachmentPopover({addFile}) {
   // Popover & Webcam Dialog States
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [webcamDialogOpen, setWebcamDialogOpen] = React.useState(false);
+
+  const [urlDialogOpen,setURLDialogOpen] =React.useState(false);
+  const [webURL,setWebURL] = React.useState("");
   const open = Boolean(anchorEl);
 
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -64,6 +67,16 @@ export default function AttachmentPopover({addFile}) {
       // Process your file upload here
     }
   };
+  const handleProvideURL= async()=>{
+    setURLDialogOpen(true);
+  }
+  const processURL = ()=>{
+    console.log("URL : ",webURL);
+    addURL(webURL);
+    setWebURL("");
+    closeURLDialog();
+
+  }
 
   // Core Logic: Determine if Mobile or Desktop when Capture is clicked
   const handleCaptureClick = async () => {
@@ -142,6 +155,10 @@ export default function AttachmentPopover({addFile}) {
     setWebcamDialogOpen(false);
   };
 
+  const closeURLDialog =()=>{
+    setURLDialogOpen(false);
+  }
+
   return (
     <div>
       {/* Hidden standard file input */}
@@ -196,7 +213,7 @@ export default function AttachmentPopover({addFile}) {
 
         <Divider />
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleProvideURL}>
           <ListItemIcon><LanguageIcon fontSize="small" /></ListItemIcon>
           <ListItemText>Web URL</ListItemText>
         </MenuItem>
@@ -235,6 +252,47 @@ export default function AttachmentPopover({addFile}) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={urlDialogOpen} onClose={closeURLDialog} maxWidth="xl"  fullWidth>
+
+        <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          Provide the valid URL
+          <IconButton onClick={closeURLDialog} color="inherit">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+         <DialogContent dividers sx={{ display: 'flex', minWidth:"90%", justifyContent: 'center',  p: 0 ,margin:'1rem'}}>
+          {/* Live stream element */}
+             <TextField
+                  slotProps={{
+                    htmlInput: { spellCheck: false }
+                  }}
+                  value={webURL}
+                  onChange={(oEvent)=>{
+                    setWebURL(oEvent.target.value);
+                  }}
+                  sx={{ width: '100%' }}
+                  id="outlined-multiline-flexible"
+                  label="URL"
+                    placeholder="Provide Valid URL"
+                  multiline
+                  maxRows={4}
+                />
+        </DialogContent>
+         <DialogActions sx={{ p: 2, justifyContent: 'right' }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={processURL}
+          
+          >
+            Continue
+          </Button>
+        </DialogActions>
+
+      </Dialog>
+      
     </div>
   );
 }

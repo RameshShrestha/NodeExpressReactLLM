@@ -8,6 +8,9 @@ export default defineConfig({
     sourcemap: true, // or 'inline' for a single file
   },
   server: {
+     allowedHosts: [
+      '.ngrok-free.dev'
+    ],
     port : 5173,
     proxy: {
       '/dataprovider': {

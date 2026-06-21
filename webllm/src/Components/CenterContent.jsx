@@ -30,6 +30,7 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ClearIcon from '@mui/icons-material/Clear';
+import Link from '@mui/material/Link';
 const _myLocalStorageUtility = LocalStorage();
 
 
@@ -49,9 +50,11 @@ function CenterContent() {
     const [chatList, setChatList] = useState([]);
     const [latestChatList, setLatestChatList] = useState([]);
     const [files, setFiles] = useState([]);
+    const [addedURL, setAddedURL]=useState("");
     const [previewUrl, setPreviewUrl] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [toastMessage,setToastMessage] = useState("");
     const containerRef = useRef(null);
     const handleClickOpen = () => {
         setDialogOpenState(true);
@@ -70,6 +73,9 @@ function CenterContent() {
 
     const addFile = async (selectedFile) => {   
         setFiles([...files, selectedFile]);
+    }
+    const addURL = async (webURL) => {   
+        setAddedURL(webURL);
     }
 
     var recognition = null;
@@ -159,6 +165,7 @@ function CenterContent() {
         //         console.error("Failed to clear chats");
         //     }
         // }
+        setToastMessage("Chat history cleared successfully");
          setDialogOpen(true);
     };
     const handleConfirmDelete = async (selectedChatId) => {
@@ -208,12 +215,49 @@ function CenterContent() {
     }
 
     const handleKeyDownOnPrompt = (oEvent) => {
+        let imageUploaded = false;
         if (oEvent.key === 'Enter' && !oEvent.shiftKey) {
             oEvent.preventDefault();
+
+               if (files ) {
+            for (let i = 0; i < files.length; i++) {
+                if(files[i].type?.indexOf("image")> -1){
+                    imageUploaded = true;
+                }
+            }
+        }
+        if(imageUploaded){
+            //check if model supports image
+
+            console.log("Image supported Model should be selected");
+
+            console.log(models,selectedModel);
+            let modelDetail = models.filter( model=>  model.text === selectedModel);
+            if(modelDetail.length> -1 &&  modelDetail[0].capabilities.includes("vision")){
+                console.log("Model Supports the Image");
+                    
+            }else{
+                setToastMessage("Model Does not Supports the Image");
+                setSnackbarOpen(true);
+                console.log("Model Does not Supports the Image");
+                setBusy(false);
+                return;
+            }
+              
+            
+        }
+
+          
             // setChatList([...chatList, {userName:'User', Message: oEvent.target.value, createdAt: new Date()},
             //         {userName:'Assistant', Message: "Waiting for response...", createdAt: new Date()}
             // ]);
             let userMessage = oEvent.target.value;
+
+            if(userMessage === "" && files.length === 0){
+            setToastMessage("No message or files");
+            setSnackbarOpen(true);
+            return;
+        }
             if(files.length > 0){
                 userMessage += "\n\n <br/> Attachments:\n";
              
@@ -244,11 +288,25 @@ function CenterContent() {
     const handleRemoveFile = (file) => {
         setFiles(files.filter(f => f !== file));
     };
+      // 2. Define the scrolling function
+  const scrollToBottom = () => {
+   // containerRef.current?.scrollIntoView({ behavior: "smooth" });
+    const listContainer = document.getElementById('listContainer');
+        if (listContainer) {
+            listContainer.scrollTop = listContainer.scrollHeight + 100;
+        }
+  };
     const handleSubmit = async (oEvent) => {
         const modelName = selectedModel; //document.getElementById('modelName').value;
         const prompt = document.getElementById('prompt').value;
         const systemPrompt = systemMessage; //document.getElementById('systemPrompt').value;
         const stream = streamResponse;
+
+        if(prompt === "" && files.length === 0){
+            setToastMessage("No message or files");
+            setSnackbarOpen(true);
+            return;
+        }
         let chatHistory = [];
         for (let i = 0; i < chatList.length; i++) {
             chatHistory.push({ role: chatList[i].userName.toLowerCase(), content: chatList[i].Message });
@@ -258,9 +316,10 @@ function CenterContent() {
             // 2. Set scrollTop to match the total scrollable height
             containerRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
+          scrollToBottom();
         setBusy(true);
 
-
+        let imageUploaded = false;
         const formData = new FormData();
         formData.append('modelName', modelName);
         formData.append('prompt', prompt);
@@ -273,8 +332,37 @@ function CenterContent() {
         if (files ) {
             for (let i = 0; i < files.length; i++) {
                 formData.append('attachments', files[i]);
+                if(files[i].type?.indexOf("image")> -1){
+                    imageUploaded = true;
+                }
             }
         }
+
+        if(imageUploaded){
+            //check if model supports image
+
+            console.log("Image supported Model should be selected");
+
+            console.log(models,selectedModel);
+            let modelDetail = models.filter( model=>  model.text === selectedModel);
+            if(modelDetail.length> -1 &&  modelDetail[0].capabilities.includes("vision")){
+                console.log("Model Supports the Image");
+                    
+            }else{
+                setToastMessage("Model Does not Supports the Image");
+                setSnackbarOpen(true);
+                console.log("Model Does not Supports the Image");
+                setBusy(false);
+                return;
+            }
+              
+            
+        }
+
+        if(addedURL.length> 0){
+             formData.append('addedURL', addedURL);
+        }
+
         // Generate text
         if (modelName && prompt && systemPrompt && !stream) {
             fetch('/dataprovider/getLLMResponse', {
@@ -309,7 +397,10 @@ function CenterContent() {
                         setChatList([...chatList, { userName: 'User', Message: userMessage, createdAt: new Date() },
                         { userName: 'Assistant', Message: doc.body.innerHTML, createdAt: new Date() }]);
                     }
+                        scrollToBottom();
                     setLatestChatList([]);
+                    setFiles([]);
+                     setAddedURL("");
                     document.getElementById('prompt').value = '';
                     setLastResponse(doc.body.innerHTML);
                     if (readResponse) {
@@ -333,7 +424,7 @@ function CenterContent() {
             setBusy(false);
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-
+                scrollToBottom();
             let accumulatedHtml = ''
             //  const doc = parser.parseFromString(data.llmresponse, 'text/html');
             while (true) {
@@ -357,6 +448,7 @@ function CenterContent() {
                     }
                     // console.log("Accumulated HTML so far:", accumulatedHtml);
                 }
+                 scrollToBottom();
             }
 
             if (!selectedChatId) {
@@ -379,6 +471,8 @@ function CenterContent() {
             }
             document.getElementById('prompt').value = '';
             setLatestChatList([]);
+            setFiles([]);
+            setAddedURL("");
             setLastResponse(accumulatedHtml);
             // setChatHistory([...chatHistory, { role: 'user', content: prompt }, { role: 'assistant', content: accumulatedHtml }]);
             //  _myLocalStorageUtility.setChatHistory([...chatHistory, { role: 'user', content: prompt }, { role: 'assistant', content: accumulatedHtml }]);
@@ -401,6 +495,9 @@ function CenterContent() {
             setChatList([]);
         }
     }, [selectedChatId, chats]);
+    useEffect(() => {
+    scrollToBottom();
+  }, [chats]);
     return (
         <>
 
@@ -450,6 +547,20 @@ function CenterContent() {
                                                     ))}
                                                 </Typography>
                                             )}
+                                            {chat.addedURL && (
+                                                 <Typography
+                                                    variant="caption"
+                                                    gutterBottom
+                                                    sx={{ display: 'block', mt: 0.5, color: 'green' }}
+                                                >
+                                                    Added URL : 
+                                                    <Link  href={chat.addedURL}  underline="hover" target="_blank"  rel="noopener noreferrer"> 
+                                                     {chat.addedURL}
+                                                     </Link>
+                                                      
+                                                   
+                                                </Typography>
+                                            )}
                                             </>
 
                                             
@@ -493,7 +604,7 @@ function CenterContent() {
                                     <ListItemText
                                      
                                         primary={
-                                            <div id={`streamResponseContainer${index}`} ref={chat.userName === 'Assistant' ? containerRef : null} 
+                                            <div id={`streamResponseContainer${index}`} ref= {containerRef} 
                                                 style={{ background: '#addbad', borderRadius: '8px', padding: '8px', display: 'inline-block' }}> <div dangerouslySetInnerHTML={{ __html: chat.Message }} /></div>
                                         }
                                         secondary={
@@ -508,18 +619,19 @@ function CenterContent() {
                                     />
 
                                 </ListItem>
-                                <Divider variant="inset" component="li" />
+                                <Divider  variant="inset" component="li" />
+                                
 
                             </React.Fragment>
                         );
                     })}
                 </List>
+                <div />
                 {/* Dummy div to maintain reference for auto scrolling */}
-                {/* <div ref={containerRef}/>  */}
             </div>
           {selectedChatId && (
             <div style={{ display: 'flex', justifyContent: 'right', gap: '10px', marginBottom: '10px' }}>
-                <AttachmentPopover addFile={addFile} />
+                <AttachmentPopover addFile={addFile} addURL ={addURL}/>
                 <button id="start-btn" title="Start Recording" onClick={startRecording} >
                     <i className="fa fa-microphone"></i>
                 </button>
@@ -542,7 +654,7 @@ function CenterContent() {
                     anchorOrigin = {{ vertical: 'bottom', horizontal: 'center' }}
                     autoHideDuration={6000}
                     onClose={() => setSnackbarOpen(false)}  
-                    message="Chat history cleared successfully"
+                    message={toastMessage}
                   
                     />
             </div> )}
@@ -638,7 +750,11 @@ function CenterContent() {
                     {/* File Preview Card */}
                   
                    
-                </div>
+                </div >
+               {addedURL && ( <div id="urlContainer" style={{margin : '5px'}}> Added URL :   <a href={addedURL}  target="_blank" rel="noopener noreferrer">
+                    {addedURL} 
+                    </a>
+                    </div> )}
                 <textarea id="prompt" className="custom-textarea" spellCheck="true" style={{ width: '100%' }} name="systemPrompt" rows="3" cols="50"
                     placeholder="Enter your prompt"
                     disabled={selectedChatId ? false : true}

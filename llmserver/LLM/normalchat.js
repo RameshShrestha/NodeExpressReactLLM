@@ -100,29 +100,81 @@ const schema = {
   }
 }
 
+const chatWithImage = async (modelName, prompt,imageBuffer) => {
+  
+  console.log(`Model: ${green} ${modelName} ${reset}, Prompt: ${green} ${prompt}${reset}, Image Buffer :${green} ${imageBuffer}${reset}`);
+  console.log("calling llm... Image chat")
 
+  let systemPrompt = `Role & Objective: You are an expert multimodal AI assistant capable of highly accurate visual analysis, 
+                      data extraction, and image-based problem solving. Your goal is to deeply understand the uploaded image(s) and provide clear, 
+                      structured, and actionable responses based on the user's specific needs.
 
-const normalchat = async (modelName, systemPrompt, chatHistory, prompt, stream) => {
+                    Behavioral Guidelines:
+                    1. Thorough Analysis: Before answering, meticulously analyze the entire image. Note the subject, setting, lighting, dominant colors, text, and 
+                          any critical details.
+                    2. Direct & Concise: Provide the requested information directly. Avoid long, unnecessary descriptions unless the user explicitly 
+                          asks you to describe the image.
+                    3. Context-Aware: Tailor your tone and output format based on the user's prompt (e.g., if asked for code, output valid code; 
+                        if asked for a recipe, output culinary instructions).
+                    4. Image-to-Text Conversion: If requested to transcribe or extract text, ensure high accuracy by double-checking OCR results.
+                    5. Limitations & Safety: If an image contains sensitive, inappropriate, or unclear content, refuse politely and explain the limitation. 
+                    6. Clarification: If the user's prompt is ambiguous or the image is too blurry to yield a confident answer, ask the user for clarification 
+                        or a higher-quality upload.
+                    `;
+
+    if (!prompt || prompt.length < 1 )   {
+      prompt ="Get the details of the image";
+    }             
+  const response = await ollama.chat({
+    model: modelName,
+    think: true,
+   
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt , images: [...imageBuffer]}
+    ],
+    stream: false
+  });
+  // console.log("response",response);
+  return response;
+}
+
+const normalchat = async (modelName, systemPrompt, chatHistory, prompt, stream, imageBuffer) => {
   debugMode &&  console.log(`Model: ${green} ${modelName} ${reset}, Prompt: ${green} ${prompt}${reset}, System Prompt: ${green}${systemPrompt}${reset}, Stream :${green} ${stream}${reset}`);
   console.log("calling llm... Normal chat")
+  let newPrompt = { };
+
+  if(imageBuffer.length > -1){
+    newPrompt =   { role: 'user', content: prompt , images: [...imageBuffer]};
+  }else{
+   newPrompt =   { role: 'user', content: prompt }
+  }
   const response = await ollama.chat({
     model: modelName,
     think: false,
     messages: [
       { role: 'system', content: systemPrompt },
       ...chatHistory,
-      { role: 'user', content: prompt }
+     newPrompt
     ],
     stream: stream
   });
   // console.log("response",response);
   return response;
 }
-const chatWithTools = async (modelName, systemPrompt, chatHistory, prompt, stream) => {
+const chatWithTools = async (modelName, systemPrompt, chatHistory, prompt, stream ,imageBuffer) => {
   debugMode &&  console.log(`Model: ${modelName}, Prompt: ${prompt}, System Prompt: ${systemPrompt}, Stream : ${stream}`);
   debugMode &&  console.log("chatHistory", chatHistory);
    debugMode && console.log(`Model: ${green} ${modelName} ${reset}, Prompt: ${green} ${prompt}${reset}, System Prompt: ${green}${systemPrompt}${reset}, Stream :${green} ${stream}${reset}`);
   console.log("calling llm with tools... Chat with tools chat")
+
+    let newPrompt = { };
+
+  if(imageBuffer.length > -1){
+    newPrompt =   { role: 'user', content: prompt , images: [...imageBuffer]};
+  }else{
+   newPrompt =   { role: 'user', content: prompt }
+  }
   try {
 
     console.log("Calling LLM with tools. Tools available:", myTools.map(tool => tool.function?.name).join(', '));
@@ -132,7 +184,7 @@ const chatWithTools = async (modelName, systemPrompt, chatHistory, prompt, strea
       messages: [
         { role: 'system', content: systemPrompt },
         ...chatHistory,
-        { role: 'user', content: prompt }
+        newPrompt
       ],
       stream: stream,
       // format: 'json', // Ensure the response is in JSON format for easier parsing
@@ -170,4 +222,4 @@ const chatWithTools = async (modelName, systemPrompt, chatHistory, prompt, strea
     throw error; // Re-throw other unexpected errors
   }
 }
-export { normalchat, chatWithTools ,analyzeUserQuery};
+export { normalchat, chatWithTools ,analyzeUserQuery,chatWithImage};

@@ -12,6 +12,9 @@ const chatMessageLLMSchema = new mongoose.Schema(
     Attachments: {
       type: String,
     },
+    addedURL :{
+      type :String
+    }
   },
   { timestamps: true }
 );

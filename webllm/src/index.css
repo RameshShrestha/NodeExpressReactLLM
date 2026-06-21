@@ -363,4 +363,14 @@ pre::-webkit-scrollbar-thumb:hover {
   background-color: #cccccc;
   cursor: not-allowed;
 }
+.myBanner{
+  color :white;
+  position: fixed;
+    background: #785323;
+    bottom: 0px;
+    padding: 5px;
+    right: 0px;
+    font-size: 1.5rem;
+    border-radius: 10px 0px;
+}
 
