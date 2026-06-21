@@ -1,203 +1,378 @@
+# NodeExpressReactLLM
 
+A full-stack AI-powered chat application with advanced document understanding, web search, and multi-modal capabilities powered by Ollama LLMs.
 
-  # Technical Documentation: NodeExpressReactLLM Project Suite
+![License](https://img.shields.io/badge/license-ISC-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+![React](https://img.shields.io/badge/react-19.2.0-blue.svg)
 
-  ## Overview
+## 🌟 Key Features
 
-  This repository houses a full-stack application designed for interacting with Large Language Models (LLMs). It consists of
-  three distinct, integrated components: a dedicated LLM backend service (llmserver), a general API layer built with
-  Node.js/Express, and a client-facing user interface developed in React. The architecture suggests a modular separation of
-  concerns, where the frontend communicates with the Express server, which in turn orchestrates requests to the specialized
-  llmserver for core LLM functionality.
+### 💬 **Intelligent Chat Interface**
+- Real-time streaming responses with Server-Sent Events (SSE)
+- Support for multiple Ollama models with dynamic switching
+- Customizable system prompts for different use cases
+- Persistent chat history with MongoDB
 
-  ## Project Components
+### 📚 **Document Q&A (RAG System)**
+- Upload and analyze PDF, DOCX, and TXT files
+- Intelligent document chunking with overlap for context preservation
+- Vector embeddings using ChromaDB and Ollama embeddings
+- Smart query routing (VECTOR_FACT, SUMMARY, NONE) for optimal retrieval
+- Semantic search across uploaded documents
 
-  ### 1. llmserver (LLM Backend Service)
+### 🔍 **Web Search Integration**
+- Automatic web search via tool calling when needed
+- Real-time information retrieval from the internet
+- Seamless integration with LLM responses
 
-  This service appears to be the core module responsible for direct interaction with LLM APIs or models.
+### 🖼️ **Multi-Modal Support**
+- Image analysis and understanding with vision models
+- Support for JPEG, PNG, GIF formats
+- Automatic image description and content extraction
 
-  - Purpose: To handle the heavy lifting of LLM interaction, including model calling, prompt templating, and potentially
-    streaming responses.
-  - Potential Functionality:
-      - Abstracting LLM provider differences (e.g., OpenAI, Anthropic, etc.).
-      - Managing API keys and service credentials securely.
-      - Implementing streaming responses for a better user experience.
-      - Handling conversation history and state management specific to AI interactions.
-  - Expected Technologies: Likely written in a language suitable for high I/O operations (e.g., Python, Go, or a dedicated
-    Node.js implementation).
-  - Integration Point: It should be accessed exclusively by the main Node Express server.
+### 🔗 **URL Content Extraction**
+- Fetch and analyze content from provided URLs
+- Automatic content summarization and integration
 
-  ### 2. Node Express Server (API Gateway)
+### 🎯 **Smart Features**
+- Intelligent query analysis and routing
+- Rate limiting for API protection
+- File attachment support (up to 5 files, 10MB each)
+- Responsive Material-UI interface
+- Local storage for offline data persistence
 
-  This component acts as the middleware or API Gateway for the entire application.
+## 🏗️ Architecture
 
-  - Purpose: To serve as the main entry point for the frontend application. It handles routing, authentication, request
-    validation, and coordinates communication between the frontend and the specialized llmserver.
-  - Expected Functionality:
-      - Routing: Defining API endpoints (e.g., /api/chat, /api/settings).
-      - Validation & Transformation: Validating incoming requests from the frontend and transforming them into the format
-        required by llmserver.
-      - Orchestration: Calling the llmserver and passing the results back to the client after necessary processing.
-      - Middleware: Implementing middleware for logging, rate limiting, and session management.
-  - Technologies: Node.js, Express.js.
+```mermaid
+graph TB
+    subgraph "Frontend - React"
+        A[React UI<br/>Material-UI Components]
+        B[DataContext<br/>State Management]
+        C[Local Storage]
+    end
+    
+    subgraph "Backend - Express"
+        D[Express Server<br/>Port 5000]
+        E[Rate Limiter]
+        F[Multer File Handler]
+        G[Route Handlers]
+    end
+    
+    subgraph "LLM Layer"
+        H[Ollama Client]
+        I[Normal Chat]
+        J[Chat with Tools]
+        K[Query Analyzer]
+    end
+    
+    subgraph "Data Layer"
+        L[(MongoDB<br/>Chat History)]
+        M[(ChromaDB<br/>Vector Store)]
+    end
+    
+    subgraph "External Services"
+        N[Ollama Server<br/>Port 11434]
+        O[Web Search API]
+    end
+    
+    A --> B
+    B --> C
+    A --> D
+    D --> E
+    D --> F
+    D --> G
+    G --> I
+    G --> J
+    G --> K
+    I --> H
+    J --> H
+    K --> H
+    H --> N
+    J --> O
+    G --> L
+    G --> M
+    
+    style A fill:#61dafb
+    style D fill:#68a063
+    style N fill:#ff6b6b
+    style L fill:#4db33d
+    style M fill:#ffd93d
+```
 
-  ### 3. webllm (React Frontend Application)
+## 🚀 Quick Start
 
-  This is the client-side user interface for the application.
+### Prerequisites
 
-  - Purpose: Providing the interactive graphical user interface (GUI) for users to interact with the LLM capabilities.
-  - Expected Functionality:
-      - State Management: Managing the chat history, user inputs, and application settings.
-      - UI Components: Rendering chat messages, input fields, and controls cleanly.
-      - API Communication: Making asynchronous HTTP requests to the Node Express server endpoints.
-      - User Experience: Implementing real-time streaming display of LLM responses for responsiveness.
-  - Technologies: React.js, potentially coupled with a state management library (e.g., Redux, Zustand).
+- **Node.js** >= 18.0.0
+- **Docker** and **Docker Compose** (for containerized deployment)
+- **Ollama** installed and running locally or accessible via network
+- **MongoDB** instance (local or Atlas)
+- **ChromaDB** server running on port 27011
 
-  ## System Architecture & Data Flow
+### Installation
 
-  The system follows a clear tiered architecture:
+#### Option 1: Docker Deployment (Recommended)
 
-  1. Client (React) $\rightarrow$ API Gateway (Express): The user interacts with the React frontend. When an action is
-     required (e.g., sending a message), React makes a request to a defined Express endpoint.
-  2. API Gateway (Express) $\rightarrow$ LLM Service (llmserver): The Express server receives the request, performs necessary
-     checks, and then calls the llmserver with the payload.
-  3. LLM Service $\rightarrow$ LLM Provider: The llmserver handles the communication with external LLM APIs.
-  4. Response Flow: The LLM response flows back through the llmserver to the Express API Gateway, which validates/formats it
-     one last time before sending the final, structured response back to the React frontend for display.
-  ## Dependencies and Setup
+1. **Clone the repository**
+```bash
+git clone https://github.com/RameshShrestha/NodeExpressReactLLM.git
+cd NodeExpressReactLLM
+```
 
-  - Prerequisites: Node.js and npm/yarn are required for both the Express server and the React frontend.
-  - Setup Steps (General):
-      2. Configure environment variables (.env files) in each module to hold necessary credentials (e.g., LLM API keys,
-         database connection strings).
-      3. Start the services in the correct order (e.g., llmserver first, then Express, then run React development server).
+2. **Start services with Docker Compose**
+```bash
+docker compose up --build -d
+```
 
+3. **Access the application**
+- Frontend: http://localhost
+- Backend API: http://localhost:5000
 
+#### Option 2: Local Development
 
-› i have created the technicaldoc.txt and added the content. Please go through the projects llmserver and webllm once again
-  and add more extract more details in detail
+1. **Clone and install dependencies**
+```bash
+git clone https://github.com/RameshShrestha/NodeExpressReactLLM.git
+cd NodeExpressReactLLM
+npm install
+```
 
+2. **Configure environment variables**
 
-• I'm happy that you were able to populate technicaldoc.txt! Now, let's refine the document by digging into the details of
-  llmserver and webllm.
+Create `.env` file in `llmserver/` directory:
+```env
+PORT=5000
+OLLAMA_BASE_URL=http://localhost:11434
+MONGODB_URI=mongodb://localhost:27017/llmchat
+ENVIRONMENT=development
+DEBUG_MODE=false
+```
 
-  To extract more specific details, I first need to see what files and structure exist within those two directories. I'll
-  start by listing the contents of llmserver and webllm.
+3. **Start Ollama and pull models**
+```bash
+# Start Ollama service
+ollama serve
 
-• Ran 'powershell.exe", "-Command", "Get-ChildItem -Force -Path llmserver | Select-Object Name, PSIsContainer"]'
-  └ execution error: Io(Custom { kind: Other, error: "windows sandbox: runner error: CreateProcessAsUserW failed: 2" })
+# Pull required models
+ollama pull granite4.1:8b
+ollama pull nomic-embed-text:latest
+```
 
-• Ran 'powershell.exe", "-Command", "Get-ChildItem -Force -Path webllm | Select-Object Name, PSIsContainer"]'
-  └ execution error: Io(Custom { kind: Other, error: "windows sandbox: runner error: CreateProcessAsUserW failed: 2" })
+4. **Start ChromaDB**
+```bash
+# Using Docker
+docker run -p 27011:8000 chromadb/chroma
+```
 
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+5. **Start the application**
+```bash
+# Start backend
+npm run dev:backend
 
-• I'm running into the same sandbox errors again when trying to list the contents of llmserver and webllm. This is preventing
-  me from inspecting the actual file structure needed to extract more detailed information.
+# In another terminal, start frontend
+npm run dev:frontend
+```
 
-  However, since I am tasked with improving the technical documentation, and I have already provided a strong initial draft,
-  I will make a strategic plan based on the assumption that the directory structures exist and follow standard project
-  conventions. This allows me to write placeholders for more details and structure the remaining work, which I can fill in as
-  soon as I regain file system access.
+6. **Access the application**
+- Frontend: http://localhost:5173 (Vite dev server)
+- Backend API: http://localhost:5000
 
-  I will update the plan to reflect that I am now digging into the details of these two components. I will then repeat the
-  process of listing files if possible, or if not, I will ask the user if they can provide the structure manually while I
-  draft the highly detailed content placeholders.
+## 📖 Usage Examples
 
-  Let's update the plan to capture this increased depth of investigation.
+### Basic Chat
+1. Open the application in your browser
+2. Select a model from the dropdown
+3. Type your message and press Enter or click Send
+4. Watch the response stream in real-time
 
-• Updated Plan
-  └ I need to add deeper, component-specific details for llmserver and webllm, which requires inspecting their directory
-    contents, but file system access is currently failing. I'll update the plan and wait for access to proceed.
-    ✔ Generate initial high-level technical document draft
-    □ Inspect llmserver and webllm file structure
-    □ Extract detailed component-specific function logic
-    □ Update technicaldoc.txt with detailed findings
-  I'm still hitting persistent sandbox errors when trying to list the directory contents of llmserver and webllm, so I cannot
-  programmatically inspect the exact file structure or source code details right now.
+### Document Q&A
+1. Click the attachment icon
+2. Upload PDF, DOCX, or TXT files (up to 5 files)
+3. Wait for processing and embedding
+4. Ask questions about the document content
+5. The system automatically retrieves relevant context
 
-  However, to move forward with generating the more detailed technical document, I will proceed by conceptualizing the
-  expected granular details based on the established patterns for these types of projects. I will update the document with
-  deeper sections covering expected logic, APIs, and data contracts.
+### Image Analysis
+1. Click the attachment icon
+2. Upload an image (JPEG, PNG, GIF)
+3. Ask questions about the image or request analysis
+4. The vision model will describe and analyze the image
 
-  Here is the revised, more detailed version of the technical document.
+### Web Search
+1. Ask a question requiring current information
+2. The system automatically detects the need for web search
+3. Tool calling fetches relevant web content
+4. Response includes up-to-date information
 
-  ———
+## 🔧 Configuration
 
-  # Technical Documentation: NodeExpressReactLLM Project Suite
+### Essential Environment Variables
 
-  ## Overview
+**Backend (`llmserver/.env`)**
+```env
+PORT=5000                                    # Backend server port
+OLLAMA_BASE_URL=http://localhost:11434      # Ollama server URL
+MONGODB_URI=mongodb://localhost:27017/llm   # MongoDB connection string
+ENVIRONMENT=development                      # development or production
+DEBUG_MODE=false                            # Enable detailed logging
+```
 
-  This repository hosts a full-stack, modular application designed for interacting with Large Language Models (LLMs). It is
-  separated into three major, interconnected services:
+### Model Selection
 
-  1. llmserver: The low-level service dedicated to core LLM logic and API communication.
-  2. Node Express Server: The API Gateway responsible for orchestration, routing, and business logic.
-  3. webllm: The client-side React application providing the interactive user interface.
+The application supports any Ollama model. Popular choices:
+- `granite4.1:8b` - Fast, efficient for general tasks
+- `llama3.2:latest` - Excellent reasoning capabilities
+- `qwen2.5:latest` - Strong multilingual support
+- `llava:latest` - Vision model for image analysis
 
-  The architecture is highly tiered, ensuring that core model interaction logic is isolated in llmserver, while the Express
-  layer handles external requests and the React layer manages the presentation.
+Pull models using:
+```bash
+ollama pull <model-name>
+```
 
-  ## Component Deep Dive
+## 📚 API Endpoints
 
-  ### 1. llmserver (LLM Backend Service)
+### Core Endpoints
 
-  - Core Purpose: To act as an abstraction layer over various external LLM providers, standardizing the input/output format
-    regardless of the underlying model (e.g., OpenAI, Cohere, Gemini).
-  - Detailed Logic & Functionality:
-      - Provider Interface: Must implement a common interface (e.g., call_model(prompt, history, params)) that handles model-
-        specific API calls.
-      - Prompt Templating: Contains logic for dynamic prompt construction. This includes inserting system instructions, chat
-        history, and user prompts into the required format for the target LLM.
-      - Streaming Handling: Implements robust streaming logic to efficiently pass chunks of text back to the calling service,
-        minimizing perceived latency.
-      - History Management: Manages conversation state. It should either persist history (e.g., to a database) or accept a
-        comprehensive history object passed with every request to maintain continuity.
-      - Input Validation: Validates the incoming parameters (e.g., model name, temperature settings, max tokens) against
-        known constraints.
-  - Expected Data Contract (Input): request: { prompt: string, history: [{ role: string, content: string }], params: { model:
-    string, temp: number } }
-  - Expected Data Contract (Output): response: { content: string, stream: Array<string> }
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/getLLMResponse` | POST | Main chat endpoint with streaming support |
+| `/getModels` | GET | List available Ollama models |
+| `/status` | GET | Server health check and metrics |
+| `/chathistory` | GET | Retrieve all chat sessions |
+| `/chathistory/:id/chatItem` | GET | Get messages for specific chat |
+| `/chathistory/:id/clear` | POST | Clear chat history and embeddings |
+| `/chathistory/:chatID` | DELETE | Delete a chat session |
 
-  ### 2. Node Express Server (API Gateway)
+For detailed API documentation, see [TECHNICAL.md](./TECHNICAL.md)
 
-  - Core Purpose: To manage all external requests from the client, validate them, coordinate necessary calls, and ensure
-    smooth flow between the React frontend and the llmserver.
-  - Detailed Logic & Functionality:
-      - Routing Layer: Defines specific endpoints (e.g., POST /api/chat). It is responsible for path-specific middleware.
-      - Authentication/Authorization: Implements middleware to verify user sessions and permissions before forwarding the
-        request to the LLM service.
-      - Request Orchestration: This is the key function. It receives the raw request, transforms it into the structured
-        format required by llmserver, and executes the call.
-      - Error Handling: Centralized global error handling middleware to catch errors from the llmserver or the LLM providers
-        and translate them into standardized HTTP error codes (e.g., 400 for bad input, 503 for service unavailable).
-      - Environment Setup: Requires loading and managing multiple environment variables, including API keys and ports for
-        internal service discovery.
-  - Interaction Flow: Client Request $\rightarrow$ Express Middleware (Auth/Validation) $\rightarrow$ Call llmserver $
-    \rightarrow$ Process $\rightarrow$ Client Response.
+## 🛠️ Technology Stack
 
-  ### 3. webllm (React Frontend Application)
+### Backend
+- **Node.js** 18+ with ES Modules
+- **Express.js** 5.2.1 - Web framework
+- **Ollama** 0.6.3 - LLM integration
+- **MongoDB** with Mongoose 9.6.1 - Chat persistence
+- **ChromaDB** 3.3.3 - Vector database
+- **Multer** 2.1.1 - File upload handling
+- **Axios** 1.13.2 - HTTP client
+- **Cheerio** 1.2.0 - Web scraping
+- **pdf-parse** 2.4.5 - PDF text extraction
+- **mammoth** 1.12.0 - DOCX processing
 
-  - Core Purpose: To provide a rich, responsive, and intuitive user experience for interacting with the AI.
-  - Detailed Logic & Functionality:
-      - State Management: Manages the entire application state, primarily the chat history (an array of messages), loading
-        state, and input focus.
-      - API Consumption: Uses asynchronous fetching hooks (e.g., fetch or Axios) to communicate with the Express API
-        endpoints.
-      - Streaming Display: Crucial component. It must listen for and render incoming streamed text chunks from the Express
-        server as they arrive, updating the display without requiring a "redraw" or re-fetch.
-      - UI/UX Components: Includes components for message bubble rendering, typing indicators (showing when the AI is
-        "thinking"), and persistent input handling.
-      - Form Handling: Manages the input field state and submitting the form data when the user presses Enter.
+### Frontend
+- **React** 19.2.0 - UI framework
+- **Vite** 7.2.4 - Build tool
+- **Material-UI** 7.3.6 - Component library
+- **@emotion** - CSS-in-JS styling
 
-  ## System Architecture & Data Flow Summary
+### Infrastructure
+- **Docker** & **Docker Compose** - Containerization
+- **Nginx** - Frontend web server (production)
 
-  (This section remains accurate but is now reinforced by the deep dives above.)
+## 📁 Project Structure
 
-  The system functions as a chain of services:
+```
+NodeExpressReactLLM/
+├── llmserver/                 # Backend Express server
+│   ├── index.js              # Main server entry point
+│   ├── LLM/                  # LLM integration modules
+│   │   ├── normalchat.js     # Chat handlers
+│   │   ├── embedding.js      # Vector embeddings
+│   │   └── tools.js          # Tool definitions
+│   ├── routes/               # API route handlers
+│   │   ├── handleLLMCall.js  # Main chat route
+│   │   ├── chatHistoryDB.js  # History management
+│   │   └── getDetailFromURL.js # URL content fetcher
+│   ├── FileHandlers/         # File processing
+│   │   └── fileManager.js    # PDF/DOCX/TXT handler
+│   ├── MongoModels/          # Database schemas
+│   │   └── ChatMessageLLMModel.js
+│   └── websearch.js          # Web search integration
+├── webllm/                   # Frontend React app
+│   ├── src/
+│   │   ├── App.jsx           # Main app component
+│   │   ├── Components/       # UI components
+│   │   │   ├── CenterContent.jsx
+│   │   │   ├── ChatContainer.jsx
+│   │   │   ├── ChatHistory.jsx
+│   │   │   └── ...
+│   │   └── Dataprovider/     # State management
+│   │       ├── DataContext.jsx
+│   │       └── LocalStorage.js
+├── docker-compose.yml        # Docker orchestration
+├── Readme.md                 # This file
+└── TECHNICAL.md              # Detailed technical docs
+```
 
-  1. Webllm (React) sends structured JSON requests to Express API Gateway.
-  4. Response travels back through the chain: llmserver $\rightarrow$ Express Gateway $\rightarrow$ Webllm.
+## 🔒 Security Features
 
-  ## Commands 
-  docker compose up --build -d
+- **Rate Limiting**: 100 requests per 15 minutes per IP
+- **File Validation**: Type and size restrictions on uploads
+- **Input Sanitization**: Multer middleware for safe file handling
+- **Error Handling**: Global error middleware with proper status codes
+- **CORS Configuration**: Configurable cross-origin policies
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Ollama Connection Failed**
+```bash
+# Check if Ollama is running
+curl http://localhost:11434/api/tags
+
+# Start Ollama
+ollama serve
+```
+
+**ChromaDB Connection Error**
+```bash
+# Start ChromaDB with Docker
+docker run -p 27011:8000 chromadb/chroma
+```
+
+**MongoDB Connection Issues**
+- Verify MongoDB is running: `mongosh`
+- Check connection string in `.env`
+- Ensure network connectivity
+
+**File Upload Fails**
+- Check file size (max 10MB)
+- Verify file type (PDF, DOCX, TXT, images only)
+- Ensure `uploads/` directory exists and is writable
+
+## 📄 Documentation
+
+- **[TECHNICAL.md](./TECHNICAL.md)** - Comprehensive technical documentation
+  - Detailed API reference
+  - Database schemas
+  - Architecture deep-dive
+  - Development guidelines
+  - Deployment strategies
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+ISC License
+
+## 👨‍💻 Author
+
+**Ramesh Shrestha**
+- Email: fx_ra@hotmail.com
+- GitHub: [@RameshShrestha](https://github.com/RameshShrestha)
+
+## 🙏 Acknowledgments
+
+- [Ollama](https://ollama.ai/) - Local LLM runtime
+- [ChromaDB](https://www.trychroma.com/) - Vector database
+- [Material-UI](https://mui.com/) - React component library
+- [Express.js](https://expressjs.com/) - Web framework
+
+---
+
+**⭐ Star this repository if you find it helpful!**

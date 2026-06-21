@@ -1,6 +1,18 @@
+/**
+ * @fileoverview Data Context Provider for managing global application state
+ * @module DataContext
+ * @description Provides centralized state management for models, chat history, theme, and user preferences
+ */
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { LocalStorage } from "./LocalStorage";
+
 const _myLocalStorageUtility = LocalStorage();
+
+/**
+ * Data Context for sharing state across the application
+ * @type {React.Context}
+ */
 const DataContext = createContext({
     contextData: {
         selectedModel: null,
@@ -18,13 +30,27 @@ const DataContext = createContext({
         chats : [],
         setChats : async () => { },
         selectedChatId : null,
-        setSelectedChatId : async () => { }
+        setSelectedChatId : async () => { },
+        theme: 'light',
+        setTheme: async () => { }
     }
 });
 
-// Create a hook to access the DataContext
+/**
+ * Custom hook to access the DataContext
+ * @returns {Object} Context value containing all state and functions
+ */
 const useAppData = () => useContext(DataContext);
-// Create a component that provides authentication-related data and functions
+
+/**
+ * DataProvider Component
+ * @component
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Child components to be wrapped
+ * @returns {JSX.Element} Provider component wrapping children with context
+ * @description Provides global state management for the entire application including
+ * models, chat history, theme preferences, and system messages
+ */
 const DataProvider = ({ children }) => {
 
     let defaultSystemMessage  = `Helpful assistant on provided topics, always respond as html5 tags inside div which can be added into webpage.
@@ -43,8 +69,23 @@ const DataProvider = ({ children }) => {
     const [chats, setChats] = useState([]);
     const [selectedVoice, setSelectedVoice] = useState(null);
     const [streamResponse, setStreamResponse] = useState(false);
-      const [readResponse, setReadResponse] = useState(false);
+    const [readResponse, setReadResponse] = useState(false);
     const [selectedModel, setSelectedModel] = useState("granite4.1:8b");
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+    /**
+     * Persist theme preference to localStorage whenever it changes
+     */
+    useEffect(() => {
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    /**
+     * Fetches available LLM models from the server
+     * @async
+     * @function getModels
+     * @returns {Promise<void>} Updates models state with fetched data
+     */
     const getModels = async () => {
         const response = await fetch('/dataprovider/getModels');
         const models = await response.json();
@@ -54,8 +95,14 @@ const DataProvider = ({ children }) => {
             capabilities : m.capabilities
         }));
         setModels(modelOptions);
-       // return models;
     }
+
+    /**
+     * Fetches the list of chat conversations from the server
+     * @async
+     * @function getChatList
+     * @returns {Promise<void>} Updates chats state with fetched chat list
+     */
     const getChatList = async()=>{
         const response = await fetch('/dataprovider/chathistory');
         const chatList = await response.json();
@@ -93,8 +140,9 @@ const values = {
         setChats,
         selectedChatId,
         setSelectedChatId,
-        getChatList
-
+        getChatList,
+        theme,
+        setTheme
     };
     // Provide authentication-related data and functions through the context
     return (

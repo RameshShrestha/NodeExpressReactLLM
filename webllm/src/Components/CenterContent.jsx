@@ -31,6 +31,12 @@ import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ClearIcon from '@mui/icons-material/Clear';
 import Link from '@mui/material/Link';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpDialog from './HelpDialog.jsx';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 const _myLocalStorageUtility = LocalStorage();
 
 
@@ -39,7 +45,7 @@ function CenterContent() {
     const timeAgo = new TimeAgo('en-US');
     const { models, streamResponse, selectedModel, selectedVoice, setSelectedVoice, setStreamResponse,
         setSelectedModel, readResponse,
-        selectedChatId, setSelectedChatId, getChatList, chats, setChats } = useContext(DataContext);
+        selectedChatId, setSelectedChatId, getChatList, chats, setChats, theme, setTheme } = useContext(DataContext);
     //   const [chatHistory, setChatHistory] = useState(_myLocalStorageUtility.getChatHistory());
 
     const [dialogOpenState, setDialogOpenState] = useState(false);
@@ -55,6 +61,7 @@ function CenterContent() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [toastMessage,setToastMessage] = useState("");
+    const [helpDialogOpen, setHelpDialogOpen] = useState(false);
     const containerRef = useRef(null);
     const handleClickOpen = () => {
         setDialogOpenState(true);
@@ -496,132 +503,176 @@ function CenterContent() {
         }
     }, [selectedChatId, chats]);
     useEffect(() => {
-    scrollToBottom();
-  }, [chats]);
+        scrollToBottom();
+    }, [chats]);
+
+    // Add copy buttons to code blocks
+    useEffect(() => {
+        const addCopyButtons = () => {
+            const codeBlocks = document.querySelectorAll('pre code');
+            codeBlocks.forEach((codeBlock) => {
+                const pre = codeBlock.parentElement;
+                
+                // Check if copy button already exists
+                if (pre.querySelector('.copy-code-button')) {
+                    return;
+                }
+
+                // Create copy button
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-code-button';
+                copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                copyButton.title = 'Copy code';
+                
+                // Add click handler
+                copyButton.addEventListener('click', async () => {
+                    const code = codeBlock.textContent;
+                    try {
+                        await navigator.clipboard.writeText(code);
+                        copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                        copyButton.style.color = '#10b981';
+                        
+                        setTimeout(() => {
+                            copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                            copyButton.style.color = '';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy code:', err);
+                    }
+                });
+
+                // Position the button
+                pre.style.position = 'relative';
+                pre.appendChild(copyButton);
+            });
+        };
+
+        // Run after chat list updates
+        addCopyButtons();
+    }, [chatList, latestChatList]);
     return (
-        <>
+        <div className="flex flex-col h-full">
+            {/* Header with Theme Toggle and Help Button */}
+            <div className="flex justify-end gap-2 mb-2">
+                <button
+                    onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl shadow-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 border border-purple-500/30"
+                    title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                >
+                    {theme === 'light' ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
+                    <span className="text-sm font-medium">{theme === 'light' ? 'Dark' : 'Light'}</span>
+                </button>
+                <button
+                    onClick={() => setHelpDialogOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 border border-blue-500/30"
+                    title="Help & Instructions"
+                >
+                    <HelpOutlineIcon fontSize="small" />
+                    <span className="text-sm font-medium">Help</span>
+                </button>
+            </div>
 
-
-            {/* <div className="dynamic-container" id="output"></div> */}
-            {/* <ChatContainer selectedChatId={selectedChatId} /> */}
-
-            <div id="listContainer" style={{ maxHeight: '72vh', overflowY: 'auto' }}  >
-                <List sx={{ width: '100%', maxWidth: '100%', bgcolor: 'background.paper' }} id="chatListContainer">
+            {/* Chat Messages Container - Takes remaining space */}
+            <div id="listContainer" className="flex-1 overflow-y-auto mb-4">
+                <List className={`w-full ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`} id="chatListContainer">
                     {chatList.length === 0 && (
-                        <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-                            Welcome
-                        </Typography>
+                        <div className="flex items-center justify-center h-full min-h-[8vh]">
+                            <Typography variant="h6" component="div" className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>
+                                Welcome
+                            </Typography>
+                        </div>
                     )}
                     {chatList.map((chat, index) => {
-                        //  console.log(chat);
                         return (
                             <React.Fragment key={index}>
-                                <ListItem alignItems="flex-start">
+                                <ListItem alignItems="flex-start" className="py-3">
                                     <ListItemAvatar>
-                                        <Avatar sx={{ bgcolor: 'green' }}>
+                                        <Avatar sx={{ bgcolor: '#16a34a' }}>
                                             {chat.userName === 'User' ? <PersonIcon /> : <AssistantIcon />}
                                         </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
                                         primary={
                                             <>
-                                            <Typography
-                                                sx={{ bgcolor: '#addbad', borderRadius: '8px', padding: '8px', display: 'inline-block' }}
+                                            <div
+                                                className={`rounded-lg p-2 inline-block max-w-full break-words ${
+                                                    theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-green-200 text-gray-900'
+                                                }`}
                                                 dangerouslySetInnerHTML={{ __html: chat.Message }}
                                             />
                                                {chat.Attachments && (
-                                                <Typography
-                                                    variant="caption"
-                                                    gutterBottom
-                                                    sx={{ display: 'block', mt: 0.5, color: 'green' }}
-                                                >
-                                                    Attachments
+                                                <div className="block mt-2 text-green-600 text-xs">
+                                                    <div className="font-semibold">Attachments</div>
                                                     {chat.Attachments.split('\n').map((attachment, idx) => (
-                                                        <Typography
-                                                            key={idx}
-                                                            variant="caption"
-                                                            sx={{ display: 'block', mt: 0.5, color: 'blue' }}
-                                                        >
+                                                        <div key={idx} className="block mt-1 text-blue-600">
                                                             {attachment}
-                                                        </Typography>
+                                                        </div>
                                                     ))}
-                                                </Typography>
+                                                </div>
                                             )}
                                             {chat.addedURL && (
-                                                 <Typography
-                                                    variant="caption"
-                                                    gutterBottom
-                                                    sx={{ display: 'block', mt: 0.5, color: 'green' }}
-                                                >
-                                                    Added URL : 
-                                                    <Link  href={chat.addedURL}  underline="hover" target="_blank"  rel="noopener noreferrer"> 
-                                                     {chat.addedURL}
-                                                     </Link>
-                                                      
-                                                   
-                                                </Typography>
+                                                <div className="block mt-2 text-green-600 text-xs">
+                                                    Added URL:
+                                                    <Link
+                                                        href={chat.addedURL}
+                                                        underline="hover"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="ml-1"
+                                                    >
+                                                        {chat.addedURL}
+                                                    </Link>
+                                                </div>
                                             )}
                                             </>
-
-                                            
-                                         
                                         }
                                         secondary={
-                                            <Typography
-                                                variant="caption"
-                                                gutterBottom
-                                                sx={{ display: 'block', mt: 0.5, color: 'green' }}
-                                            >
+                                            <span className="block mt-1 text-green-600 text-xs">
                                                 {chat && chat.createdAt && timeAgo.format(new Date(chat.createdAt))}
-                                            </Typography>
+                                            </span>
                                         }
                                     />
-
                                 </ListItem>
                                 <Divider variant="inset" component="li" />
-
                             </React.Fragment>
                         );
                     })}
                 </List>
 
-                <List sx={{ width: '100%', maxWidth: '100%', bgcolor: 'background.paper' }} id="chatListContainerNewChat">
+                <List className={`w-full ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`} id="chatListContainerNewChat">
                     {latestChatList.length === 0 && (
-                        <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-
+                        <Typography className="ml-4 flex-1" variant="h6" component="div">
                         </Typography>
                     )}
                     {latestChatList.map((chat, index) => {
-                        //  console.log(chat);
                         return (
                             <React.Fragment key={index}>
-                                <ListItem alignItems="flex-start">
+                                <ListItem alignItems="flex-start" className="py-3">
                                     <ListItemAvatar>
-                                        <Avatar sx={{ bgcolor: 'green' }}>
+                                        <Avatar sx={{ bgcolor: '#16a34a' }}>
                                             {chat.userName === 'User' ? <PersonIcon /> : <AssistantIcon />}
                                         </Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
-                                     
                                         primary={
-                                            <div id={`streamResponseContainer${index}`} ref= {containerRef} 
-                                                style={{ background: '#addbad', borderRadius: '8px', padding: '8px', display: 'inline-block' }}> <div dangerouslySetInnerHTML={{ __html: chat.Message }} /></div>
+                                            <div
+                                                id={`streamResponseContainer${index}`}
+                                                ref={containerRef}
+                                                className={`rounded-lg p-2 inline-block max-w-full break-words ${
+                                                    theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-green-200 text-gray-900'
+                                                }`}
+                                            >
+                                                <div dangerouslySetInnerHTML={{ __html: chat.Message }} />
+                                            </div>
                                         }
                                         secondary={
-                                            <Typography
-                                                variant="caption"
-                                                gutterBottom
-                                                sx={{ display: 'block', mt: 0.5, color: 'green' }}
-                                            >
+                                            <span className="block mt-1 text-green-600 text-xs">
                                                 {chat && chat.createdAt && timeAgo.format(new Date(chat.createdAt))}
-                                            </Typography>
+                                            </span>
                                         }
                                     />
-
                                 </ListItem>
-                                <Divider  variant="inset" component="li" />
-                                
-
+                                <Divider variant="inset" component="li" />
                             </React.Fragment>
                         );
                     })}
@@ -629,18 +680,58 @@ function CenterContent() {
                 <div />
                 {/* Dummy div to maintain reference for auto scrolling */}
             </div>
-          {selectedChatId && (
-            <div style={{ display: 'flex', justifyContent: 'right', gap: '10px', marginBottom: '10px' }}>
+
+            {/* Action Buttons and Textarea - Fixed at bottom */}
+            <div className="flex-shrink-0">
+                {selectedChatId && (
+                    <div className="flex flex-wrap justify-end gap-2 mb-2 sm:mb-3">
                 <AttachmentPopover addFile={addFile} addURL ={addURL}/>
-                <button id="start-btn" title="Start Recording" onClick={startRecording} >
+                <button
+                    id="start-btn"
+                    title="Start Recording"
+                    onClick={startRecording}
+                    className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
                     <i className="fa fa-microphone"></i>
                 </button>
 
-                <button id="sendToAI" onClick={handleSubmit} title="Send to AI"><SendIcon /></button>
-                <button id="speak-btn" onClick={handleSpeakButtonClick} title="Read Response"><CampaignIcon /></button>
-                <button onClick={stopSpeakText} title="Stop Reading"><VolumeOffIcon /></button>
-                <button onClick={clearChats} title="Clear Chats"><ClearIcon /></button>
-                <button onClick={showSystemMessage} title="System Message"><SettingsSuggestIcon/> </button>
+                <button
+                    id="sendToAI"
+                    onClick={handleSubmit}
+                    title="Send to AI"
+                    className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                    <SendIcon fontSize="small" />
+                </button>
+                <button
+                    id="speak-btn"
+                    onClick={handleSpeakButtonClick}
+                    title="Read Response"
+                    className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                    <CampaignIcon fontSize="small" />
+                </button>
+                <button
+                    onClick={stopSpeakText}
+                    title="Stop Reading"
+                    className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                    <VolumeOffIcon fontSize="small" />
+                </button>
+                <button
+                    onClick={clearChats}
+                    title="Clear Chats"
+                    className="p-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                    <ClearIcon fontSize="small" />
+                </button>
+                <button
+                    onClick={showSystemMessage}
+                    title="System Message"
+                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                >
+                    <SettingsSuggestIcon fontSize="small" />
+                </button>
                    <ConfirmationDialog
                     selectedChatId = {selectedChatId}
                     open={dialogOpen}
@@ -657,89 +748,42 @@ function CenterContent() {
                     message={toastMessage}
                   
                     />
-            </div> )}
-            {/* <ChatHistory dialogOpenState={dialogOpenState} handleClose={handleClose} chatHistory={chatHistory} /> */}
-            <SystemMessageBox dialogOpenState={dialogSystemMessageState} handleClose={handleCloseSystemMessage} systemMessage={systemMessage} selectedChatId={selectedChatId} />
-            {busy && <BusyBar />}
-            <div id="textAreaContainer" className="textarea-container">
-                <div id="attachmentContainer" style={{ display: 'flex', justifyContent: 'left', gap: '5px', marginBottom: '5px' }}>
+                    </div>
+                )}
+                
+                {/* Textarea Container - Always at bottom */}
+                <div id="textAreaContainer" className="textarea-container">
+                <div id="attachmentContainer" className="flex flex-wrap justify-start gap-2 mb-2">
                     {/* <AttachmentPopover /> */}
-                       {files.map((file, index) => (
-                            // <li key={index}>{file.name}</li>
-                             <div  style={{
-                        position: 'relative',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        padding: '0.25rem',
-                        backgroundColor: '#f9fafb',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '0.5rem'
-                    }}>
+                       {files.map((file) => (
+                            <div key={file.name} className="relative flex items-center gap-3 p-1 bg-gray-50 border border-gray-200 rounded-lg">
                             {/* Visual preview: Image thumbnail OR file icon */}
                             {file.previewUrl ? (
                                 <img
                                     src={file.previewUrl}
                                     alt="Preview"
-                                    style={{ width: "3rem", height: "3rem", borderRadius: "0.25rem", objectFit: "cover" }}
+                                    className="w-12 h-12 rounded object-cover"
                                 />
                             ) : (
-                                <div style={{
-                                    width: '2rem',
-                                    height: '1rem',
-                                    backgroundColor: '#dbeafe',
-                                    color: '#2563eb',
-                                    borderRadius: '0.25rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontWeight: '700',
-                                    fontSize: '0.75rem',
-                                    textTransform: 'uppercase'
-                                }}>
+                                <div className="w-8 h-4 bg-blue-100 text-blue-600 rounded flex items-center justify-center font-bold text-xs uppercase">
                                     {file.name.split('.').pop()}
                                 </div>
                             )}
 
                             {/* File Details */}
-                            <div style={{
-                                flex: '1 1 0%',
-                                minWidth: '0px'
-                            }}>
-                                <p style={{
-                                    fontSize: '0.875rem',
-                                    lineHeight: '1.25rem',
-                                    fontWeight: '500',
-                                    color: '#111827',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                    margin : "0px"
-                                }}>{file.previewUrl ? '' : file.name}</p>
-                                <p style={{
-                                    fontSize: '0.75rem',
-                                    lineHeight: '1.25rem',
-                                    color: '#6b7280',
-                                    margin : "0px"
-                                }}>{(file.size / 1024).toFixed(1)} KB</p>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 overflow-hidden text-ellipsis whitespace-nowrap m-0">
+                                    {file.previewUrl ? '' : file.name}
+                                </p>
+                                <p className="text-xs text-gray-600 m-0">
+                                    {(file.size / 1024).toFixed(1)} KB
+                                </p>
                             </div>
 
                             {/* Cross / Remove Button */}
                             <button
-                                onClick={() => handleRemoveFile( file)}
-                                style={{
-                                    borderRadius: '9999px',
-                                    backgroundColor: '#e5e7eb',
-                                    color: '#4b5563',
-                                    transitionProperty: 'color, background-color, border-color, text-decoration-color, fill, stroke',
-                                    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-                                    transitionDuration: '150ms',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    margin: '0px',
-                                    padding: '0px'
-
-                                }}
+                                onClick={() => handleRemoveFile(file)}
+                                className="rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors border-none cursor-pointer m-0 p-0"
                                 aria-label="Remove file"
                             >
                                 <CloseIcon fontSize="small" />
@@ -751,23 +795,39 @@ function CenterContent() {
                   
                    
                 </div >
-               {addedURL && ( <div id="urlContainer" style={{margin : '5px'}}> Added URL :   <a href={addedURL}  target="_blank" rel="noopener noreferrer">
-                    {addedURL} 
-                    </a>
-                    </div> )}
-                <textarea id="prompt" className="custom-textarea" spellCheck="true" style={{ width: '100%' }} name="systemPrompt" rows="3" cols="50"
+               {addedURL && (
+                   <div id="urlContainer" className="m-1 p-2 bg-blue-50 rounded text-sm">
+                       Added URL: <a href={addedURL} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">
+                           {addedURL}
+                       </a>
+                   </div>
+               )}
+                <textarea
+                    id="prompt"
+                    className={`w-full ${theme === 'dark' ? 'custom-textarea-dark' : 'custom-textarea'}`}
+                    spellCheck="true"
+                    name="systemPrompt"
+                    rows="3"
+                    cols="50"
                     placeholder="Enter your prompt"
-                    disabled={selectedChatId ? false : true}
-
+                    disabled={!selectedChatId}
                     onKeyDown={handleKeyDownOnPrompt}>
                 </textarea>
-                <button id="sendToAI2" onClick={handleSubmit} className="inside-button">  <SendIcon /></button>
+                <button
+                    id="sendToAI2"
+                    onClick={handleSubmit}
+                    className="inside-button"
+                >
+                    <SendIcon />
+                </button>
+                </div>
             </div>
-            {/* <textarea id="promptdummy" className="custom-textarea" spellcheck="true" style={{ width: '100%' }} name="systemPrompt" rows="3" cols="50"
-             placeholder="Enter your prompt Dummy"
-             onKeyDown={handleKeyDownOnPrompt_Dummy}>
-            </textarea>  */}
 
-        </>)
+            {/* Dialogs and Overlays */}
+            <HelpDialog open={helpDialogOpen} onClose={() => setHelpDialogOpen(false)} />
+            <SystemMessageBox dialogOpenState={dialogSystemMessageState} handleClose={handleCloseSystemMessage} systemMessage={systemMessage} selectedChatId={selectedChatId} />
+            {busy && <BusyBar />}
+        </div>
+    )
 }
 export default CenterContent
