@@ -1,16 +1,42 @@
 import { ChromaClient } from "chromadb";
 import ollama from "ollama";
 import { OllamaEmbeddingFunction } from "@chroma-core/ollama";
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(import.meta.dirname, '../.env') });
+
+let ollamaHost = process.env.OLLAMA_BASE_URL || 'http://docker.internal';
+let chromaHost = process.env.CHROMA_BASE_URL || 'http://docker.internal';
+let chromaPort = process.env.CHROMA_PORT || 27011;
+
+if (process.env.ENVIRONMENT === "development") {
+  console.log("Running in development environment, using host.docker.internal to connect to Ollama");
+  ollamaHost = 'http://localhost:11434';
+  chromaHost = 'localhost';
+  chromaPort = 27011;
+}
+
+console.log(`OLLAMA_HOST: ${ollamaHost}`);
+console.log(`CHROMA_HOST: ${chromaHost}`);
+console.log(`CHROMA_PORT: ${chromaPort}`);
+
+const debugMode =  process.env.DEBUG_MODE==='true' || false;
+
+
+
+console.log( `${process.env.CHROMA_HOST}:${process.env.CHROMA_PORT}` );
+
 // Connect to Chroma server
 const chroma = new ChromaClient({
+  // path: `${process.env.CHROMA_HOST}:${process.env.CHROMA_PORT}` ,
   //path: "http://localhost:27011/"
-  host: "localhost", // Do NOT include "http://" or "https://" here
-  port: 27011,        // Must be parsed or passed as an explicit integer
+ host: chromaHost, // Do NOT include "http://" or "https://" here
+  port: chromaPort,        // Must be parsed or passed as an explicit integer
   ssl: false,        // Set to true if your endpoint uses https://
 });
 // 2. Configure the Ollama Embedding Function
 const embedder = new OllamaEmbeddingFunction({
-  url: "http://localhost:11434", // Your local Ollama instance
+  url: ollamaHost, // Your local Ollama instance
   model: "nomic-embed-text:latest",     // The model pulled in Step 2
 });
 

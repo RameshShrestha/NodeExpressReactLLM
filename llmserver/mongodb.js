@@ -4,15 +4,17 @@ console.log(DB_NAME,process.env.MONGODB_URI);
 /** @type {typeof mongoose | undefined} */
  let dbInstance = undefined;
  let dbConnected = false;
+ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://ramesh:ramesh@localhost:27017';
+
 const connectDB = async () => {
   try {
-    // const connectionInstance = await mongoose.connect(
-    //   `${'mongodb+srv://ramesh_01:ramesh123@cluster0.m44psuo.mongodb.net'}/${DB_NAME}`
-    // );
-
-    const connectionInstance = await mongoose.connect(
-      `${'mongodb://ramesh:ramesh@localhost:27017'}/${DB_NAME}?authSource=admin`
+     const connectionInstance = await mongoose.connect(
+       `${MONGODB_URI}/${DB_NAME}`
     );
+
+    // const connectionInstance = await mongoose.connect(
+    //   `${MONGODB_URI}/${DB_NAME}?authSource=admin`
+    // );
     
     dbInstance = connectionInstance;
     dbConnected = true;

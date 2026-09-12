@@ -5,7 +5,7 @@ import { ChatMessageLLM } from '../MongoModels/ChatMessageLLMModel.js';
 import {clearCollection} from '../LLM/embedding.js';
 router.route("/").get(async (req, res) => {
     //let lat = req.query.lat;
-    console.log("Fetching all chat messages");
+   // console.log("Fetching all chat messages");
     try {
         res.setHeader('Content-Type', 'application/json');
         ChatMessageLLM.find({}).select('-children').sort({  createdAt: -1 }).then(function (chats) {
